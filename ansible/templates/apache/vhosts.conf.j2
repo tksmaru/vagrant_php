@@ -1,0 +1,13 @@
+NameVirtualHost *:80
+
+<VirtualHost *:80>
+  ServerName      study.localhost
+  DocumentRoot    /var/www/study.localhost
+  DirectoryIndex  index.php index.html
+
+  <Directory "/var/www/study.localhost">
+    AllowOverride All
+    Allow from    All
+  </Directory>
+</VirtualHost>
+

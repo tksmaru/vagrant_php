@@ -1,0 +1,55 @@
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    #### MySQL
+    - name: remove mariadb libraries
+      yum:
+        name: mariadb-libs
+        state: absent
+    - name: add mysql repository
+      yum:
+        name: http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+    - name: install mysql 5.7 community server
+      yum:
+        name: mysql-community-server
+        state: present
+    #### PHP
+    - name: install PHP
+      yum:
+        name: "{{item}}"
+      with_items:
+        - php
+        - php-pear
+        - php-devel
+        - php-mbstring
+        - php-mysql
+        - php-pdo
+        - php-xml
+    #### Apache settings
+    - name: copy vhosts.conf
+      template:
+        src: templates/apache/vhosts.conf.j2
+        dest: /etc/httpd/conf.d/vhosts.conf
+        owner: root
+        group: root
+        mode: 0644
+    - name: create documet root for php
+      file:
+        path: /var/www/study.localhost
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+    - name: activate httpd and restart
+      service:
+        name: httpd
+        enabled: yes
+        state: restarted
+    #### common tools
+    - name: install common tools
+      yum:
+        name: "{{item}}"
+      with_items:
+        - vim
+
