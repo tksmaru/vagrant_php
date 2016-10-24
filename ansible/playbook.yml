@@ -12,8 +12,26 @@
         name: http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
     - name: install mysql 5.7 community server
       yum:
-        name: mysql-community-server
+        name: "{{item}}"
         state: present
+      with_items:
+        - mysql-community-server
+        - MySQL-python
+    - name: activate mysql
+      service:
+        name: mysqld
+        enabled: yes
+        state: restarted
+    - name: get initial password for root user
+      shell: grep 'temporary password is generated' /var/log/mysqld.log | awk '{print $11}'
+      register: mysql_root_password
+    - name: copy .my.cnf for root user
+      template:
+        src: templates/mysql/.my.cnf.j2
+        dest: /root/.my.cnf
+        owner: root
+        group: root
+        mode: 0600
     #### PHP
     - name: install PHP
       yum:
