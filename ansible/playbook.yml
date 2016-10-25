@@ -2,6 +2,10 @@
   connection: local
   become: yes
   tasks:
+    #### SELinux
+    - name: disable SELinux
+      selinux:
+        state: disabled
     #### MySQL
     - name: remove mariadb libraries
       yum:
@@ -24,7 +28,9 @@
         state: restarted
     - name: get initial password for root user
       shell: grep 'temporary password is generated' /var/log/mysqld.log | awk '{print $11}'
-      register: mysql_root_password
+      register: mysql_default_root_password
+    - name: change password
+      shell: mysqladmin -u root -p'{{mysql_default_root_password.stdout}}' password 'Passw0rd!'
     - name: copy .my.cnf for root user
       template:
         src: templates/mysql/.my.cnf.j2
@@ -52,13 +58,6 @@
         owner: root
         group: root
         mode: 0644
-    - name: create documet root for php
-      file:
-        path: /var/www/study.localhost
-        state: directory
-        owner: vagrant
-        group: vagrant
-        mode: 0755
     - name: activate httpd and restart
       service:
         name: httpd
@@ -70,4 +69,3 @@
         name: "{{item}}"
       with_items:
         - vim
-
