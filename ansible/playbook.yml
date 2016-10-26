@@ -26,11 +26,17 @@
         name: mysqld
         enabled: yes
         state: restarted
+    - name: check if .my.cnf exists. if exists, root password for mysql is already created.
+      stat:
+        path: /root/.my.cnf
+      register: mycnf_file
     - name: get initial password for root user
       shell: grep 'temporary password is generated' /var/log/mysqld.log | awk '{print $11}'
       register: mysql_default_root_password
+      when: mycnf_file.stat.md5 is not defined
     - name: change password
       shell: mysqladmin -u root -p'{{mysql_default_root_password.stdout}}' password 'Passw0rd!'
+      when: mycnf_file.stat.md5 is not defined
     - name: copy .my.cnf for root user
       template:
         src: templates/mysql/.my.cnf.j2
