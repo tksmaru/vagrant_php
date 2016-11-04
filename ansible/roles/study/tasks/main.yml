@@ -1,0 +1,23 @@
+- name: disable SELinux
+  selinux:
+    state: disabled
+
+- name: copy vhosts.conf
+  template:
+    src: templates/vhosts.conf.j2
+    dest: /etc/httpd/conf.d/vhosts.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: activate httpd and restart
+  service:
+    name: httpd
+    enabled: yes
+    state: restarted
+
+- name: create database "oneline_bbs"
+  mysql_db: name=oneline_bbs state=present encoding=utf8
+
+- name: create table for database "oneline_bbs"
+  mysql_db: name=oneline_bbs state=import target=/vagrant/sql/oneline_bbs.sql

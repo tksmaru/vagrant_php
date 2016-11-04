@@ -1,0 +1,27 @@
+- name: remove mariadb libraries
+  yum: name=mariadb-libs state=absent
+
+- name: add mysql repository
+  yum:
+    name: http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+
+- name: install mysql 5.6 community server
+  yum:
+    name: "{{item}}"
+    disablerepo: mysql57-community
+    enablerepo: mysql56-community
+    state: present
+  with_items:
+    - mysql-community-server
+    - MySQL-python
+
+- name: update my.cnf from template file
+  template:
+    src: templates/my.cnf.j2
+    dest: /etc/my.cnf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: activate mysql as a service
+  service: name=mysqld enabled=yes state=restarted

@@ -1,0 +1,11 @@
+- name: install PHP 5.4 (CentOS7 default)
+  yum:
+    name: "{{item}}"
+  with_items:
+    - php
+    - php-pear
+    - php-devel
+    - php-mbstring
+    - php-mysqlnd
+    - php-pdo
+    - php-xml

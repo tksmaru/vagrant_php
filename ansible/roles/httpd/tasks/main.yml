@@ -1,0 +1,5 @@
+- name: install apache http server
+  yum: name=httpd
+
+- name: activate httpd and restart
+  service: name=httpd enabled=yes state=restarted

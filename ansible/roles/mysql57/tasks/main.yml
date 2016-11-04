@@ -1,0 +1,45 @@
+- name: remove mariadb libraries
+  yum: name=mariadb-libs state=absent
+
+- name: add mysql repository
+  yum: name=http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+
+- name: install mysql 5.7 community server
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - mysql-community-server
+    - MySQL-python
+
+- name: check if .my.cnf exists. if exists, root password for mysql is already created.
+  stat: path=/root/.my.cnf
+  register: mycnf_file
+
+- name: get initial password for root user
+  shell: grep 'temporary password is generated' /var/log/mysqld.log | awk '{print $11}'
+  register: mysql_default_root_password
+  when: mycnf_file.stat.md5 is not defined
+
+- name: change password
+  shell: mysqladmin -u root -p'{{mysql_default_root_password.stdout}}' password 'Passw0rd!'
+  when: mycnf_file.stat.md5 is not defined
+
+- name: copy .my.cnf for root user
+  template:
+    src: templates/.my.cnf.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: update my.cnf from template file
+  template:
+    src: templates/my.cnf.j2
+    dest: /etc/my.cnf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: activate mysql
+  service: name=mysqld enabled=yes state=restarted

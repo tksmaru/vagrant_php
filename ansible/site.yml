@@ -1,0 +1,10 @@
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+  roles:
+    - common
+    - mysql56
+    - php54
+    - httpd
+    - study
