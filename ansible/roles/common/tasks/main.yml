@@ -3,3 +3,14 @@
     name: "{{item}}"
   with_items:
     - vim
+
+- name: copy timezone settings
+  template:
+    src: templates/clock.j2
+    dest: /etc/sysconfig/clock
+    owner: root
+    group: root
+    mode: 0644
+
+- name: change localtime to Asia/Tokyo immediately
+  file: src=/usr/share/zoneinfo/Asia/Tokyo dest=/etc/localtime state=link
