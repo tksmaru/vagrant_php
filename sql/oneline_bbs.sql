@@ -1,3 +1,6 @@
+
+drop table if exists `post`;
+
 create table `post` (
   `id` integer not null auto_increment,
   `name` varchar(40),

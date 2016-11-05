@@ -1,2 +1,5 @@
 # images
 .vagrant/
+
+# for debug
+site_debug.yml

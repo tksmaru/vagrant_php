@@ -9,15 +9,21 @@
     owner: root
     group: root
     mode: 0644
+  notify:
+    - activate and restart httpd
 
-- name: activate httpd and restart
-  service:
-    name: httpd
-    enabled: yes
-    state: restarted
+- name: copy php.ini
+  template:
+    src: templates/php.ini.j2
+    dest: /etc/php.ini
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - activate and restart httpd
 
 - name: create database "oneline_bbs"
   mysql_db: name=oneline_bbs state=present encoding=utf8
 
-- name: create table for database "oneline_bbs"
+- name: recreate table "post" for database "oneline_bbs"
   mysql_db: name=oneline_bbs state=import target=/vagrant/sql/oneline_bbs.sql
